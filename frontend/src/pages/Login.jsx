@@ -73,10 +73,19 @@ export default function Login() {
 
         <form onSubmit={submit}>
           {tab === 'register' && (
-            <div className="form-group">
-              <label className="form-label">Full Name</label>
-              <input className="form-input" name="name" placeholder="John Doe" value={form.name} onChange={handle} required />
-            </div>
+            <>
+              <div className="form-group">
+                <label className="form-label">Full Name</label>
+                <input className="form-input" name="name" placeholder="John Doe" value={form.name} onChange={handle} required />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Role</label>
+                <select className="form-input" name="role" value={form.role} onChange={handle} required>
+                  <option value="STUDENT">Student</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+              </div>
+            </>
           )}
           <div className="form-group">
             <label className="form-label">Email Address</label>

@@ -14,9 +14,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public List<User> getAllStudents() {
-        return userRepository.findAll().stream()
-                .filter(u -> u.getRole().name().equals("STUDENT"))
-                .toList();
+        return userRepository.findByRole(com.hostel.backend.entity.Role.STUDENT);
     }
 
     public User getUserById(Long id) {

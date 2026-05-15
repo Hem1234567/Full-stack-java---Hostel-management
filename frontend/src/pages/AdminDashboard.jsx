@@ -12,26 +12,42 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.allSettled([
-      api.get('/admin/students'),
-      api.get('/rooms'),
-      api.get('/admin/complaints'),
-      api.get('/admin/fees'),
-    ]).then(([s, r, c, f]) => {
-      const studs = s.status === 'fulfilled' ? s.value.data : [];
-      const rooms = r.status === 'fulfilled' ? r.value.data : [];
-      const comp  = c.status === 'fulfilled' ? c.value.data : [];
-      const fees  = f.status === 'fulfilled' ? f.value.data : [];
+    api.get('/admin/stats').then(r => {
+      const data = r.data;
       setStats({
-        students: studs.length,
-        rooms: rooms.length,
-        complaints: comp.filter(x => x.status === 'PENDING').length,
-        fees: fees.filter(x => x.paid).length,
-        unpaidFees: fees.filter(x => !x.paid).length,
+        students: data.totalStudents,
+        rooms: data.totalRooms,
+        complaints: data.openComplaints,
+        fees: data.feesPaid,
+        unpaidFees: data.feesPending,
       });
-      setComplaints(comp.slice(0, 5));
-      setStudents(studs.slice(0, 5));
+      setComplaints(data.recentComplaints || []);
+      setStudents(data.recentStudents || []);
       setLoading(false);
+    }).catch(err => {
+      console.warn("Stats endpoint failed, falling back to old method", err);
+      // Fallback to old method if new endpoint is not available
+      Promise.allSettled([
+        api.get('/admin/students'),
+        api.get('/rooms'),
+        api.get('/admin/complaints'),
+        api.get('/admin/fees'),
+      ]).then(([s, r, c, f]) => {
+        const studs = s.status === 'fulfilled' ? s.value.data : [];
+        const rooms = r.status === 'fulfilled' ? r.value.data : [];
+        const comp  = c.status === 'fulfilled' ? c.value.data : [];
+        const fees  = f.status === 'fulfilled' ? f.value.data : [];
+        setStats({
+          students: studs.length,
+          rooms: rooms.length,
+          complaints: comp.filter(x => x.status === 'PENDING').length,
+          fees: fees.filter(x => x.paid).length,
+          unpaidFees: fees.filter(x => !x.paid).length,
+        });
+        setComplaints(comp.slice(0, 5));
+        setStudents(studs.slice(0, 5));
+        setLoading(false);
+      });
     });
   }, []);
 

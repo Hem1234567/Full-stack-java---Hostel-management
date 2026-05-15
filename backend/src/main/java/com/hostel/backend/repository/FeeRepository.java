@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface FeeRepository extends JpaRepository<Fee, Long> {
     List<Fee> findByStudentId(Long studentId);
+    long countByPaid(boolean paid);
 }
